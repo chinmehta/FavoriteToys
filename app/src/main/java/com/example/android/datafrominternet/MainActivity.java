@@ -20,7 +20,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.datafrominternet.utilities.NetworkUtils;
@@ -36,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mSearchResultsTextView;
 
+    private TextView errorMessageTextView;
+
+
+    private ProgressBar mProgressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,29 +52,50 @@ public class MainActivity extends AppCompatActivity {
 
         mUrlDisplayTextView = (TextView) findViewById(R.id.tv_url_display);
         mSearchResultsTextView = (TextView) findViewById(R.id.tv_github_search_results_json);
+
+        errorMessageTextView = (TextView) findViewById(R.id.tv_error_message_display);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
     }
 
     /**
-     * This method retrieves the search text from the EditText, constructs the URL
-     * (using {@link NetworkUtils}) for the github repository you'd like to find, displays
+     * This method retrieves the search text from the EditText, constructs the
+     * URL (using {@link NetworkUtils}) for the github repository you'd like to find, displays
      * that URL in a TextView, and finally fires off an AsyncTask to perform the GET request using
-     * our (not yet created) {@link GithubQueryTask}
+     * our {@link GithubQueryTask}
      */
     private void makeGithubSearchQuery() {
         String githubQuery = mSearchBoxEditText.getText().toString();
         URL githubSearchUrl = NetworkUtils.buildUrl(githubQuery);
         mUrlDisplayTextView.setText(githubSearchUrl.toString());
-        String githubSearchResults = null;
         new GithubQueryTask().execute(githubSearchUrl);
     }
 
 
-    public class GithubQueryTask extends AsyncTask<URL, Void, String>
-    {
+
+    private void showJsonDataView(){
+        errorMessageTextView.setVisibility(View.INVISIBLE);
+        mSearchResultsTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorMessage(){
+        errorMessageTextView.setVisibility(View.VISIBLE);
+        mSearchResultsTextView.setVisibility(View.INVISIBLE);
+    }
+
+
+    public class GithubQueryTask extends AsyncTask<URL, Void, String> {
+
 
         @Override
-        protected String doInBackground(URL... urls) {
-            URL searchUrl = urls[0];
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(URL... params) {
+            URL searchUrl = params[0];
             String githubSearchResults = null;
             try {
                 githubSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
@@ -78,11 +106,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String s)
-        {
-            if(s!=null&& !s.equals(""))
-            {
-                mSearchResultsTextView.setText(s);
+        protected void onPostExecute(String githubSearchResults) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            if (githubSearchResults != null && !githubSearchResults.equals("")) {
+                showJsonDataView();
+                mSearchResultsTextView.setText(githubSearchResults);
+            }
+            else {
+                showErrorMessage();
             }
         }
     }
