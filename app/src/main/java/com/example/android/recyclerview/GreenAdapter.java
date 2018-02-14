@@ -37,6 +37,7 @@ import android.widget.TextView;
  */
 public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.NumberViewHolder> {
 
+
     private static final String TAG = GreenAdapter.class.getSimpleName();
 
     private int mNumberItems;
@@ -103,34 +104,22 @@ public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.NumberViewHo
         return mNumberItems;
     }
 
-    /**
-     * Cache of the children views for a list item.
-     */
-    class NumberViewHolder extends RecyclerView.ViewHolder {
+    class NumberViewHolder extends RecyclerView.ViewHolder{
 
-        // Will display the position in the list, ie 0 through getItemCount() - 1
         TextView listItemNumberView;
 
-        /**
-         * Constructor for our ViewHolder. Within this constructor, we get a reference to our
-         * TextViews and set an onClickListener to listen for clicks. Those will be handled in the
-         * onClick method below.
-         * @param itemView The View that you inflated in
-         *                 {@link GreenAdapter#onCreateViewHolder(ViewGroup, int)}
-         */
-        public NumberViewHolder(View itemView) {
+        public NumberViewHolder(View itemView)
+        {
             super(itemView);
-
             listItemNumberView = (TextView) itemView.findViewById(R.id.tv_item_number);
         }
-
-        /**
-         * A method we wrote for convenience. This method will take an integer as input and
-         * use that integer to display the appropriate text within a list item.
-         * @param listIndex Position of the item in the list
-         */
-        void bind(int listIndex) {
+        public void bind (int listIndex)
+        {
             listItemNumberView.setText(String.valueOf(listIndex));
         }
+
     }
-}
+
+    }
+
+
